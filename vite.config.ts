@@ -13,8 +13,8 @@ export default defineConfig({
         name: 'RLD BVP Event Tasks',
         short_name: 'BVP Tasks',
         description: 'Task tracker for the RLD Matrushakti BVP event',
-        theme_color: '#15803d',
-        background_color: '#f8fafc',
+        theme_color: '#226858',
+        background_color: '#f7f8f5',
         display: 'standalone',
         start_url: '/',
         icons: [

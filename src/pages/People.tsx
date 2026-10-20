@@ -2,6 +2,12 @@ import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
 import { useTaskData } from '../lib/useTaskData';
+import { IconPlus } from '../components/icons';
+
+function initials(name: string) {
+  const parts = name.trim().split(/\s+/);
+  return (parts[0]?.[0] ?? '').toUpperCase() + (parts[1]?.[0] ?? '').toUpperCase();
+}
 
 export default function People() {
   const { people, tasks, loading, error, refresh } = useTaskData();
@@ -29,50 +35,56 @@ export default function People() {
     refresh();
   }
 
-  if (loading) return <div className="p-6 text-sm text-slate-500">Loading...</div>;
-  if (error) return <div className="p-6 text-sm text-red-600">{error}</div>;
+  if (loading) return <div className="p-7 text-[13px] text-muted">Loading&hellip;</div>;
+  if (error) return <div className="p-7 text-[13px] text-out">{error}</div>;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
-      <h1 className="text-xl font-semibold text-slate-900">People</h1>
-      <p className="text-sm text-slate-500">Everyone tasks can be assigned to for this event.</p>
+    <div className="mx-auto max-w-2xl space-y-4 px-3.5 py-5 md:px-7 md:py-7">
+      <div>
+        <h1>People</h1>
+        <p className="page-sub">Everyone tasks can be assigned to for this event.</p>
+      </div>
 
       {isCoordinator && (
-        <div className="flex flex-wrap gap-2 rounded-xl border border-slate-200 bg-white p-4">
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className="input max-w-xs" />
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone (optional)" className="input max-w-xs" />
-          <button
-            onClick={handleAdd}
-            disabled={saving}
-            className="rounded-lg bg-brand-600 px-3 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
-          >
-            Add person
+        <div className="panel flex flex-wrap items-end gap-2 p-3.5">
+          <div className="flex-1">
+            <span className="input-label">Name</span>
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" className="input" />
+          </div>
+          <div className="flex-1">
+            <span className="input-label">Phone</span>
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Optional" className="input" />
+          </div>
+          <button onClick={handleAdd} disabled={saving} className="btn">
+            <IconPlus size={14} /> Add
           </button>
         </div>
       )}
 
-      <div className="rounded-xl border border-slate-200 bg-white">
-        <ul className="divide-y divide-slate-100">
-          {people.map((p) => {
-            const taskCount = tasks.filter((t) => (t.assignees ?? []).some((a) => a.person_id === p.id)).length;
-            return (
-              <li key={p.id} className="flex items-center justify-between px-4 py-3">
-                <div>
-                  <p className={`text-sm font-medium ${p.active ? 'text-slate-800' : 'text-slate-400 line-through'}`}>{p.name}</p>
-                  <p className="text-xs text-slate-500">
-                    {p.phone ?? 'No phone'} &middot; {taskCount} task{taskCount === 1 ? '' : 's'}
-                  </p>
-                </div>
-                {isCoordinator && (
-                  <button onClick={() => toggleActive(p.id, p.active)} className="text-xs text-slate-400 hover:text-slate-600">
-                    {p.active ? 'Deactivate' : 'Reactivate'}
-                  </button>
-                )}
-              </li>
-            );
-          })}
-          {people.length === 0 && <li className="p-6 text-center text-sm text-slate-400">No one added yet.</li>}
-        </ul>
+      <div className="panel">
+        {people.map((p) => {
+          const taskCount = tasks.filter((t) => (t.assignees ?? []).some((a) => a.person_id === p.id)).length;
+          return (
+            <div key={p.id} className="row items-center">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-pale text-[12px] font-semibold text-teal">
+                {initials(p.name)}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className={`row-title ${p.active ? '' : 'text-muted line-through opacity-70'}`}>{p.name}</p>
+                <p className="row-meta">
+                  {p.phone ?? 'No phone'} &middot; {taskCount} task{taskCount === 1 ? '' : 's'}
+                  {p.profile_id && <span className="ml-1.5 tag teal">has login</span>}
+                </p>
+              </div>
+              {isCoordinator && (
+                <button onClick={() => toggleActive(p.id, p.active)} className="btn text small shrink-0">
+                  {p.active ? 'Deactivate' : 'Reactivate'}
+                </button>
+              )}
+            </div>
+          );
+        })}
+        {people.length === 0 && <p className="p-7 text-center text-[13px] text-muted">No one added yet.</p>}
       </div>
     </div>
   );

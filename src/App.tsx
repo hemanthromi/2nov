@@ -12,9 +12,7 @@ export default function App() {
   const { session, profile, loading, signOut } = useAuth();
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center text-sm text-slate-500">Loading...</div>
-    );
+    return <div className="flex min-h-screen items-center justify-center bg-bg text-[13px] text-muted">Loading&hellip;</div>;
   }
 
   if (!session) {
@@ -23,16 +21,11 @@ export default function App() {
 
   if (!profile || !profile.is_active) {
     return (
-      <div className="flex min-h-screen items-center justify-center px-4">
-        <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-          <h1 className="text-lg font-semibold text-slate-900">No access yet</h1>
-          <p className="mt-2 text-sm text-slate-500">
-            Your Sampark account isn't set up for the BVP task tracker yet. Ask an admin to enable it.
-          </p>
-          <button
-            onClick={signOut}
-            className="mt-4 text-sm font-medium text-brand-700 hover:underline"
-          >
+      <div className="flex min-h-screen items-center justify-center bg-bg px-4">
+        <div className="panel w-full max-w-sm p-6 text-center">
+          <h1>No access yet</h1>
+          <p className="page-sub mt-2">Your Sampark account isn't set up for the BVP task tracker yet. Ask an admin to enable it.</p>
+          <button onClick={signOut} className="btn text mt-4">
             Sign out
           </button>
         </div>

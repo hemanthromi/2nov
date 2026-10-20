@@ -1,6 +1,6 @@
 import type { Task } from '../lib/types';
 import { PRIORITY_LABELS, STATUS_LABELS } from '../lib/types';
-import { PRIORITY_CLASSES, STATUS_CLASSES, formatDate, isOverdue } from '../lib/format';
+import { formatDate, isDone, isOverdue } from '../lib/format';
 
 interface Props {
   task: Task;
@@ -10,47 +10,60 @@ interface Props {
   canEdit: boolean;
 }
 
+const PRIORITY_TAG: Record<Task['priority'], string> = {
+  critical: 'tag error',
+  high: 'tag warn',
+  medium: 'tag teal',
+  low: 'tag muted',
+};
+
+const STATUS_TAG: Record<Task['status'], string> = {
+  not_started: 'tag muted',
+  open: 'tag teal',
+  pending_approval: 'tag warn',
+  undecided: 'tag warn',
+  in_progress: 'tag teal',
+  confirmed: 'tag success',
+  blocked: 'tag error',
+  done: 'tag success',
+  cancelled: 'tag error',
+};
+
 export default function TaskRow({ task, selected, onToggleSelect, onOpen, canEdit }: Props) {
   const overdue = isOverdue(task.due_date, task.status);
+  const done = isDone(task.status);
+  const cancelled = task.status === 'cancelled';
   const assignees = task.assignees ?? [];
   const assigneeNames = assignees.map((a) => a.person?.name).filter(Boolean) as string[];
-  const assigneeSummary =
-    assigneeNames.length === 0
-      ? null
-      : assigneeNames.length <= 2
-        ? assigneeNames.join(', ')
-        : `${assigneeNames[0]} +${assigneeNames.length - 1}`;
 
-  const metaBits = [task.task_type, task.qty ? `Qty ${task.qty}` : null].filter(Boolean).join(' · ');
+  const metaBits = [
+    task.task_type,
+    task.qty ? `Qty ${task.qty}` : null,
+    task.due_date ? `Due ${formatDate(task.due_date)}` : null,
+    assigneeNames.length ? (assigneeNames.length <= 2 ? assigneeNames.join(', ') : `${assigneeNames[0]} +${assigneeNames.length - 1}`) : null,
+  ].filter(Boolean);
 
   return (
-    <div className="flex items-start gap-3 px-4 py-2.5 hover:bg-slate-50">
+    <div className={`row items-start ${cancelled ? 'border-l-2 border-l-out' : ''}`}>
       {canEdit && (
         <input
           type="checkbox"
           checked={selected}
           onChange={onToggleSelect}
           onClick={(e) => e.stopPropagation()}
-          className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300"
+          className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--teal)]"
         />
       )}
       <button onClick={onOpen} className="min-w-0 flex-1 text-left">
-        <p className="truncate text-sm font-medium text-slate-800">
-          {task.source_no != null && <span className="mr-1.5 text-slate-400">#{task.source_no}</span>}
+        <p className={`row-title truncate ${done ? 'text-muted line-through opacity-70' : ''}`}>
+          {task.source_no != null && <span className="mr-1.5 font-normal text-muted">#{task.source_no}</span>}
           {task.title}
         </p>
-        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
-          <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${PRIORITY_CLASSES[task.priority]}`}>
-            {PRIORITY_LABELS[task.priority]}
-          </span>
-          <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_CLASSES[task.status]}`}>
-            {STATUS_LABELS[task.status]}
-          </span>
-          {metaBits && <span className="truncate">{metaBits}</span>}
-          {task.due_date && (
-            <span className={overdue ? 'font-medium text-red-600' : ''}>Due {formatDate(task.due_date)}</span>
-          )}
-          {assigneeSummary && <span className="truncate text-indigo-600">{assigneeSummary}</span>}
+        <div className="row-meta mt-1 truncate">{metaBits.join(' · ') || '—'}</div>
+        <div className="mt-1.5 flex flex-wrap gap-1.5">
+          <span className={PRIORITY_TAG[task.priority]}>{PRIORITY_LABELS[task.priority]}</span>
+          <span className={STATUS_TAG[task.status]}>{STATUS_LABELS[task.status]}</span>
+          {overdue && <span className="tag error">Overdue</span>}
         </div>
       </button>
     </div>

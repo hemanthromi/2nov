@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { IconSparkle } from '../components/icons';
 
 const STAFF_EMAIL_DOMAIN = 'sampark-staff.in';
 
@@ -33,45 +34,48 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-lg font-semibold text-slate-900">RLD BVP Event Tasks</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Sign in with the same phone number / email and password you use for other Sampark apps.
-        </p>
+    <div className="flex min-h-screen items-center justify-center bg-bg px-4">
+      <div className="panel w-full max-w-sm p-6">
+        <div className="mb-4 flex items-center gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal text-on-teal">
+            <IconSparkle size={15} />
+          </span>
+          <span className="text-[16px] font-semibold text-ink">RLD BVP Event</span>
+        </div>
+        <p className="page-sub">Sign in with the same phone number / email and password you use for other Sampark apps.</p>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-3">
-          <input
-            type="text"
-            required
-            autoComplete="username"
-            placeholder="Phone number or email"
-            value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
-            className="input"
-          />
-          <input
-            type="password"
-            required
-            autoComplete="current-password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="input"
-          />
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-brand-600 px-3 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
-          >
-            {loading ? 'Signing in...' : 'Sign in'}
+        <form onSubmit={handleSubmit} className="mt-5 space-y-3">
+          <div>
+            <span className="input-label">Phone number or email</span>
+            <input
+              type="text"
+              required
+              autoComplete="username"
+              placeholder="e.g. 9876543210"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              className="input"
+            />
+          </div>
+          <div>
+            <span className="input-label">Password</span>
+            <input
+              type="password"
+              required
+              autoComplete="current-password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="input"
+            />
+          </div>
+          {error && <p className="text-[13px] text-out">{error}</p>}
+          <button type="submit" disabled={loading} className="btn w-full justify-center">
+            {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
 
-        <p className="mt-4 text-xs text-slate-400">
-          Don't have an account yet? Ask a Sampark admin to add you.
-        </p>
+        <p className="mt-4 text-[12px] text-muted">Don't have an account yet? Ask a Sampark admin to add you.</p>
       </div>
     </div>
   );

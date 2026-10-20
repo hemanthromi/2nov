@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { Person } from '../lib/types';
+import { IconSearch } from './icons';
 
 interface Props {
   people: Person[];
@@ -33,13 +34,11 @@ export default function PeoplePicker({ people, selected, onToggle, onCreate }: P
 
   return (
     <div className="space-y-2">
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search or add a person..."
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-      />
-      <div className="max-h-48 space-y-1 overflow-y-auto">
+      <div className="relative">
+        <IconSearch size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search or add a person..." className="input pl-8" />
+      </div>
+      <div className="max-h-48 space-y-0.5 overflow-y-auto">
         {filtered.map((p) => {
           const isSelected = selected.includes(p.id);
           return (
@@ -47,8 +46,8 @@ export default function PeoplePicker({ people, selected, onToggle, onCreate }: P
               type="button"
               key={p.id}
               onClick={() => onToggle(p.id)}
-              className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm ${
-                isSelected ? 'bg-brand-50 text-brand-800' : 'hover:bg-slate-50'
+              className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[13px] ${
+                isSelected ? 'bg-pale text-teal' : 'text-ink hover:bg-hover'
               }`}
             >
               <span>{p.name}</span>
@@ -56,16 +55,11 @@ export default function PeoplePicker({ people, selected, onToggle, onCreate }: P
             </button>
           );
         })}
-        {filtered.length === 0 && <p className="px-3 py-2 text-sm text-slate-400">No matches</p>}
+        {filtered.length === 0 && <p className="px-3 py-2 text-[13px] text-muted">No matches</p>}
       </div>
       {query.trim() && !exactMatch && (
-        <button
-          type="button"
-          onClick={handleCreate}
-          disabled={creating}
-          className="w-full rounded-lg border border-dashed border-brand-300 px-3 py-2 text-sm text-brand-700 hover:bg-brand-50 disabled:opacity-60"
-        >
-          {creating ? 'Adding...' : `+ Add "${query.trim()}" as a new person`}
+        <button type="button" onClick={handleCreate} disabled={creating} className="btn secondary w-full !border-dashed !border-teal !text-teal">
+          {creating ? 'Adding…' : `+ Add "${query.trim()}" as a new person`}
         </button>
       )}
     </div>

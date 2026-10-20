@@ -6,7 +6,7 @@ export default function Dashboard() {
   const { categories, tasks, loading, error } = useTaskData();
 
   if (loading) return <Centered>Loading checklist...</Centered>;
-  if (error) return <Centered className="text-red-600">{error}</Centered>;
+  if (error) return <Centered className="text-out">{error}</Centered>;
 
   const total = tasks.length;
   const done = tasks.filter((t) => isDone(t.status)).length;
@@ -15,71 +15,59 @@ export default function Dashboard() {
   const unassigned = tasks.filter((t) => !t.assignees || t.assignees.length === 0).length;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-6">
+    <div className="mx-auto max-w-[1400px] space-y-5 px-3.5 py-5 md:px-7 md:py-7">
       <div>
-        <h1 className="text-xl font-semibold text-slate-900">Event checklist overview</h1>
-        <p className="text-sm text-slate-500">RLD Matrushakti BVP event &middot; {total} tasks across {categories.length} categories</p>
+        <h1>Event checklist overview</h1>
+        <p className="page-sub">
+          RLD Matrushakti BVP event &middot; {total} tasks across {categories.length} categories
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Done" value={done} total={total} tone="brand" />
-        <Stat label="Overdue" value={overdue} total={total} tone="red" />
-        <Stat label="Critical open" value={criticalOpen} total={total} tone="orange" />
-        <Stat label="Unassigned" value={unassigned} total={total} tone="slate" />
+        <Stat label="Done" value={done} foot={`of ${total} tasks`} tone="in" />
+        <Stat label="Overdue" value={overdue} foot={`of ${total} tasks`} tone="out" />
+        <Stat label="Critical open" value={criticalOpen} foot={`of ${total} tasks`} tone="amber" />
+        <Stat label="Unassigned" value={unassigned} foot={`of ${total} tasks`} />
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white">
-        <div className="border-b border-slate-200 px-4 py-3">
-          <h2 className="text-sm font-semibold text-slate-900">Categories</h2>
+      <div className="panel">
+        <div className="panelhead">
+          <span className="panel-title">Categories</span>
         </div>
-        <ul className="divide-y divide-slate-100">
-          {categories.map((cat) => {
-            const catTasks = tasks.filter((t) => t.category_id === cat.id);
-            const catDone = catTasks.filter((t) => isDone(t.status)).length;
-            const pct = catTasks.length ? Math.round((catDone / catTasks.length) * 100) : 0;
-            return (
-              <li key={cat.id}>
-                <Link
-                  to={`/tasks?category=${cat.id}`}
-                  className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-slate-50"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-slate-800">{cat.name}</p>
-                    <div className="mt-1.5 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-slate-100">
-                      <div className="h-full rounded-full bg-brand-500" style={{ width: `${pct}%` }} />
-                    </div>
-                  </div>
-                  <span className="whitespace-nowrap text-xs text-slate-500">
-                    {catDone}/{catTasks.length}
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        {categories.map((cat) => {
+          const catTasks = tasks.filter((t) => t.category_id === cat.id);
+          const catDone = catTasks.filter((t) => isDone(t.status)).length;
+          const pct = catTasks.length ? Math.round((catDone / catTasks.length) * 100) : 0;
+          return (
+            <Link key={cat.id} to={`/tasks?category=${cat.id}`} className="row items-center hover:bg-hover">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[13.5px] font-medium text-ink">{cat.name}</p>
+                <div className="mt-1.5 h-1 w-full max-w-xs overflow-hidden rounded-full bg-line">
+                  <div className="h-full rounded-full bg-teal" style={{ width: `${pct}%` }} />
+                </div>
+              </div>
+              <span className="shrink-0 text-[12px] font-medium tabular-nums text-muted">
+                {catDone}/{catTasks.length}
+              </span>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
 }
 
 function Centered({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return <div className={`flex min-h-[50vh] items-center justify-center text-sm ${className}`}>{children}</div>;
+  return <div className={`flex min-h-[50vh] items-center justify-center text-[13px] text-muted ${className}`}>{children}</div>;
 }
 
-const TONE_CLASSES: Record<string, string> = {
-  brand: 'text-brand-700 bg-brand-50',
-  red: 'text-red-700 bg-red-50',
-  orange: 'text-orange-700 bg-orange-50',
-  slate: 'text-slate-700 bg-slate-100',
-};
-
-function Stat({ label, value, total, tone }: { label: string; value: number; total: number; tone: string }) {
+function Stat({ label, value, foot, tone }: { label: string; value: number; foot: string; tone?: 'in' | 'out' | 'amber' }) {
+  const valueClass = tone === 'in' ? 'text-in' : tone === 'out' ? 'text-out' : tone === 'amber' ? 'text-amber-ink' : 'text-ink';
   return (
-    <div className={`rounded-xl p-4 ${TONE_CLASSES[tone]}`}>
-      <p className="text-2xl font-semibold">{value}</p>
-      <p className="text-xs opacity-80">
-        {label} of {total}
-      </p>
+    <div className="stat-tile">
+      <p className="stat-label">{label}</p>
+      <p className={`stat-value ${valueClass}`}>{value}</p>
+      <p className="stat-foot">{foot}</p>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { useAuth } from '../lib/useAuth';
 import { useTaskData } from '../lib/useTaskData';
 import { buildImportPlan, parseChecklistFile, applyImportPlan } from '../lib/importChecklist';
 import type { ImportPlan, ImportResult } from '../lib/importChecklist';
+import { IconDownload } from '../components/icons';
 
 export default function Import() {
   const { isCoordinator } = useAuth();
@@ -16,16 +17,10 @@ export default function Import() {
   const [parseError, setParseError] = useState<string | null>(null);
 
   if (!isCoordinator) {
-    return (
-      <div className="p-6 text-sm text-slate-500">
-        Only coordinators and admins can import or update tasks from a file.
-      </div>
-    );
+    return <div className="p-7 text-[13px] text-muted">Only coordinators and admins can import or update tasks from a file.</div>;
   }
 
-  const existingBySourceNo = new Map(
-    tasks.filter((t) => t.source_no != null).map((t) => [t.source_no as number, t.id]),
-  );
+  const existingBySourceNo = new Map(tasks.filter((t) => t.source_no != null).map((t) => [t.source_no as number, t.id]));
   const existingCategoryNames = categories.map((c) => c.name);
 
   async function handleFile(file: File) {
@@ -65,14 +60,16 @@ export default function Import() {
   const updates = plan?.items.filter((i) => i.action === 'update').length ?? 0;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-4 p-4 md:p-6">
-      <h1 className="text-xl font-semibold text-slate-900">Import tasks</h1>
-      <p className="text-sm text-slate-500">
-        Upload an Excel (.xlsx) or CSV file with columns like No., Section, Task / Item, Type, Qty, Owner,
-        Deadline, Priority, Status, Notes. Rows with a matching No. update that task; others are added as new.
-      </p>
+    <div className="mx-auto max-w-3xl space-y-4 px-3.5 py-5 md:px-7 md:py-7">
+      <div>
+        <h1>Import tasks</h1>
+        <p className="page-sub">
+          Upload an Excel (.xlsx) or CSV file with columns like No., Section, Task / Item, Type, Qty, Owner,
+          Deadline, Priority, Status, Notes. Rows with a matching No. update that task; others are added as new.
+        </p>
+      </div>
 
-      <div className="rounded-xl border-2 border-dashed border-slate-300 bg-white p-8 text-center">
+      <div className="panel border-dashed p-9 text-center">
         <input
           ref={fileRef}
           type="file"
@@ -83,82 +80,72 @@ export default function Import() {
             if (file) handleFile(file);
           }}
         />
-        <button
-          onClick={() => fileRef.current?.click()}
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
-        >
+        <IconDownload size={22} className="mx-auto mb-2 text-muted" />
+        <button onClick={() => fileRef.current?.click()} className="btn">
           Choose file
         </button>
-        {fileName && <p className="mt-2 text-sm text-slate-500">{fileName}</p>}
+        {fileName && <p className="mt-2 text-[13px] text-muted">{fileName}</p>}
       </div>
 
-      {parseError && <p className="text-sm text-red-600">{parseError}</p>}
+      {parseError && <p className="text-[13px] text-out">{parseError}</p>}
 
       {plan && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <h2 className="text-sm font-semibold text-slate-900">Preview</h2>
-          <ul className="mt-2 space-y-1 text-sm text-slate-600">
+        <div className="panel p-4">
+          <h2 className="panel-title">Preview</h2>
+          <ul className="mt-2 space-y-1 text-[13px] text-ink">
             <li>{creates} new task(s)</li>
             <li>{updates} task(s) will be updated</li>
-            <li>{plan.newCategories.length} new category(ies): {plan.newCategories.join(', ') || 'none'}</li>
+            <li>
+              {plan.newCategories.length} new category(ies): {plan.newCategories.join(', ') || 'none'}
+            </li>
             <li>{plan.skipped.length} row(s) skipped</li>
           </ul>
 
-          <div className="mt-4 max-h-64 overflow-y-auto rounded-lg border border-slate-100">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-500">
+          <div className="mt-4 max-h-64 overflow-y-auto rounded-lg border border-line">
+            <table className="w-full text-left text-[12px]">
+              <thead className="bg-soft text-muted">
                 <tr>
-                  <th className="px-2 py-1.5">#</th>
-                  <th className="px-2 py-1.5">Section</th>
-                  <th className="px-2 py-1.5">Title</th>
-                  <th className="px-2 py-1.5">Action</th>
+                  <th className="px-2 py-1.5 font-medium">#</th>
+                  <th className="px-2 py-1.5 font-medium">Section</th>
+                  <th className="px-2 py-1.5 font-medium">Title</th>
+                  <th className="px-2 py-1.5 font-medium">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-line">
                 {plan.items.slice(0, 50).map((item, i) => (
                   <tr key={i}>
-                    <td className="px-2 py-1.5">{item.row.no ?? '—'}</td>
+                    <td className="px-2 py-1.5 tabular-nums text-muted">{item.row.no ?? '—'}</td>
                     <td className="px-2 py-1.5">{item.row.section}</td>
                     <td className="px-2 py-1.5">{item.row.title}</td>
                     <td className="px-2 py-1.5">
-                      <span className={item.action === 'create' ? 'text-brand-700' : 'text-amber-700'}>
-                        {item.action}
-                      </span>
+                      <span className={item.action === 'create' ? 'tag teal' : 'tag warn'}>{item.action}</span>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            {plan.items.length > 50 && (
-              <p className="p-2 text-center text-xs text-slate-400">
-                Showing first 50 of {plan.items.length} rows
-              </p>
-            )}
+            {plan.items.length > 50 && <p className="p-2 text-center text-[12px] text-muted">Showing first 50 of {plan.items.length} rows</p>}
           </div>
 
           <div className="mt-4 flex justify-end gap-2">
-            <button onClick={() => setPlan(null)} className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">
+            <button onClick={() => setPlan(null)} className="btn secondary">
               Cancel
             </button>
-            <button
-              onClick={handleConfirm}
-              disabled={busy}
-              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
-            >
-              {busy ? 'Importing...' : `Import ${plan.items.length} row(s)`}
+            <button onClick={handleConfirm} disabled={busy} className="btn">
+              {busy ? 'Importing…' : `Import ${plan.items.length} row(s)`}
             </button>
           </div>
         </div>
       )}
 
       {result && (
-        <div className="rounded-xl border border-brand-200 bg-brand-50 p-4 text-sm text-brand-800">
-          <p className="font-medium">Import complete</p>
-          <p>
+        <div className="panel p-4">
+          <p className="row-title">Import complete</p>
+          <p className="row-meta mt-1">
             {result.created} created, {result.updated} updated, {result.skipped} skipped.
           </p>
           {result.errors.length > 0 && (
-            <div className="mt-2 text-red-700">
+            <div className="mt-2 text-[12px] text-out">
               <p className="font-medium">{result.errors.length} error(s):</p>
               <ul className="list-disc pl-5">
                 {result.errors.slice(0, 10).map((e, i) => (

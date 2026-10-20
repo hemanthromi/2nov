@@ -8,6 +8,7 @@ import type { Task } from '../lib/types';
 import TaskRow from '../components/TaskRow';
 import TaskDetailModal from '../components/TaskDetailModal';
 import BulkActionBar from '../components/BulkActionBar';
+import { IconChevronDown, IconFilter, IconPlus, IconSearch } from '../components/icons';
 
 export default function Tasks() {
   const { categories, people, tasks, loading, error, refresh } = useTaskData();
@@ -57,9 +58,7 @@ export default function Tasks() {
       list.push(t);
       map.set(t.category_id, list);
     }
-    return categories
-      .filter((c) => map.has(c.id))
-      .map((c) => ({ category: c, tasks: map.get(c.id)! }));
+    return categories.filter((c) => map.has(c.id)).map((c) => ({ category: c, tasks: map.get(c.id)! }));
   }, [categories, filtered]);
 
   function toggleSelect(id: string) {
@@ -100,11 +99,7 @@ export default function Tasks() {
 
   async function handleCreateCategory(name: string): Promise<string | null> {
     const nextSort = Math.max(0, ...categories.map((c) => c.sort)) + 1;
-    const { data, error } = await supabase
-      .from('bvp_categories')
-      .insert({ name, sort: nextSort })
-      .select('id')
-      .single();
+    const { data, error } = await supabase.from('bvp_categories').insert({ name, sort: nextSort }).select('id').single();
     if (error) {
       alert(error.message);
       return null;
@@ -120,36 +115,36 @@ export default function Tasks() {
     setAddingCategory(false);
   }
 
-  if (loading) return <div className="p-6 text-sm text-slate-500">Loading tasks...</div>;
-  if (error) return <div className="p-6 text-sm text-red-600">{error}</div>;
+  if (loading) return <div className="p-7 text-[13px] text-muted">Loading tasks&hellip;</div>;
+  if (error) return <div className="p-7 text-[13px] text-out">{error}</div>;
 
   return (
-    <div className="mx-auto max-w-5xl p-4 md:p-6">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-xl font-semibold text-slate-900">Tasks</h1>
+    <div className="mx-auto max-w-[1400px] px-3.5 py-5 md:px-7 md:py-7">
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1>Tasks</h1>
+          <p className="page-sub">{filtered.length} of {tasks.length} tasks</p>
+        </div>
         {isCoordinator && (
           <div className="flex gap-2">
-            <button
-              onClick={() => setAddingCategory((v) => !v)}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
-            >
-              + Category
+            <button onClick={() => setAddingCategory((v) => !v)} className="btn secondary small">
+              <IconPlus size={13} /> Category
             </button>
             <button
               onClick={() => {
                 setNewTaskCategoryId(categoryFilter || undefined);
                 setEditingTask(null);
               }}
-              className="rounded-lg bg-brand-600 px-3 py-2 text-sm font-medium text-white hover:bg-brand-700"
+              className="btn"
             >
-              + New task
+              <IconPlus size={14} /> New task
             </button>
           </div>
         )}
       </div>
 
       {addingCategory && (
-        <div className="mb-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-3">
+        <div className="panel mb-4 flex items-center gap-2 p-3">
           <input
             value={newCategoryName}
             onChange={(e) => setNewCategoryName(e.target.value)}
@@ -157,7 +152,7 @@ export default function Tasks() {
             autoFocus
             className="input"
           />
-          <button onClick={handleAddCategory} className="rounded-lg bg-brand-600 px-3 py-2 text-sm font-medium text-white hover:bg-brand-700">
+          <button onClick={handleAddCategory} className="btn small">
             Add
           </button>
           <button
@@ -165,40 +160,36 @@ export default function Tasks() {
               setAddingCategory(false);
               setNewCategoryName('');
             }}
-            className="text-sm text-slate-400 hover:text-slate-600"
+            className="btn text small"
           >
             Cancel
           </button>
         </div>
       )}
 
-      <div className="mb-4 flex gap-2">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search tasks..."
-          className="input"
-        />
+      <div className="mb-3 flex gap-2">
+        <div className="relative flex-1">
+          <IconSearch size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search tasks..."
+            className="input pl-9"
+          />
+        </div>
         <button
           onClick={() => setFiltersOpen((v) => !v)}
-          className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium ${
-            filtersOpen || activeFilterCount > 0
-              ? 'border-brand-300 bg-brand-50 text-brand-700'
-              : 'border-slate-300 text-slate-600 hover:bg-slate-50'
-          }`}
+          className={`btn secondary small shrink-0 ${filtersOpen || activeFilterCount > 0 ? '!border-teal !text-teal' : ''}`}
         >
+          <IconFilter size={13} />
           Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
         </button>
       </div>
 
       {filtersOpen && (
-        <div className="mb-4 space-y-3 rounded-xl border border-slate-200 bg-white p-3">
+        <div className="panel mb-4 space-y-3 p-3">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <select
-              value={categoryFilter}
-              onChange={(e) => setParams(e.target.value ? { category: e.target.value } : {})}
-              className="rounded-lg border border-slate-300 px-2 py-2 text-sm"
-            >
+            <select value={categoryFilter} onChange={(e) => setParams(e.target.value ? { category: e.target.value } : {})} className="input">
               <option value="">All categories</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -206,7 +197,7 @@ export default function Tasks() {
                 </option>
               ))}
             </select>
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-lg border border-slate-300 px-2 py-2 text-sm">
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="input">
               <option value="">All statuses</option>
               {STATUSES.map((s) => (
                 <option key={s} value={s}>
@@ -214,7 +205,7 @@ export default function Tasks() {
                 </option>
               ))}
             </select>
-            <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="rounded-lg border border-slate-300 px-2 py-2 text-sm">
+            <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="input">
               <option value="">All priorities</option>
               {PRIORITIES.map((p) => (
                 <option key={p} value={p}>
@@ -222,7 +213,7 @@ export default function Tasks() {
                 </option>
               ))}
             </select>
-            <select value={assigneeFilter} onChange={(e) => setAssigneeFilter(e.target.value)} className="rounded-lg border border-slate-300 px-2 py-2 text-sm">
+            <select value={assigneeFilter} onChange={(e) => setAssigneeFilter(e.target.value)} className="input">
               <option value="">Everyone</option>
               {people.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -232,12 +223,12 @@ export default function Tasks() {
             </select>
           </div>
           <div className="flex items-center justify-between">
-            <label className="flex items-center gap-1.5 text-sm text-slate-600">
-              <input type="checkbox" checked={overdueOnly} onChange={(e) => setOverdueOnly(e.target.checked)} />
+            <label className="flex items-center gap-1.5 text-[13px] text-ink">
+              <input type="checkbox" checked={overdueOnly} onChange={(e) => setOverdueOnly(e.target.checked)} className="accent-[var(--teal)]" />
               Overdue only
             </label>
             {activeFilterCount > 0 && (
-              <button onClick={clearFilters} className="text-xs font-medium text-slate-400 hover:text-slate-600">
+              <button onClick={clearFilters} className="btn text small">
                 Clear filters
               </button>
             )}
@@ -250,47 +241,37 @@ export default function Tasks() {
           selectedIds={[...selected]}
           people={people}
           onCreatePerson={handleCreatePerson}
-          onDone={() => {
-            refresh();
-          }}
+          onDone={() => refresh()}
           onClear={() => setSelected(new Set())}
         />
       )}
 
       <div className="space-y-3">
         {grouped.map(({ category, tasks: catTasks }) => (
-          <div key={category.id} className="rounded-xl border border-slate-200 bg-white">
-            <button
-              onClick={() => toggleCollapsed(category.id)}
-              className="flex w-full items-center justify-between px-4 py-3 text-left"
-            >
-              <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                <span className={`text-slate-400 transition-transform ${collapsed.has(category.id) ? '-rotate-90' : ''}`}>
-                  &#9662;
-                </span>
+          <div key={category.id} className="panel">
+            <button onClick={() => toggleCollapsed(category.id)} className="panelhead w-full text-left">
+              <span className="flex items-center gap-2 panel-title">
+                <IconChevronDown size={14} className={`text-muted transition-transform ${collapsed.has(category.id) ? '-rotate-90' : ''}`} />
                 {category.name}
               </span>
-              <span className="text-xs text-slate-400">
+              <span className="text-[12px] tabular-nums text-muted">
                 {catTasks.length} task{catTasks.length === 1 ? '' : 's'}
               </span>
             </button>
-            {!collapsed.has(category.id) && (
-              <div className="divide-y divide-slate-100 border-t border-slate-100">
-                {catTasks.map((task) => (
-                  <TaskRow
-                    key={task.id}
-                    task={task}
-                    selected={selected.has(task.id)}
-                    onToggleSelect={() => toggleSelect(task.id)}
-                    onOpen={() => setEditingTask(task)}
-                    canEdit={isCoordinator}
-                  />
-                ))}
-              </div>
-            )}
+            {!collapsed.has(category.id) &&
+              catTasks.map((task) => (
+                <TaskRow
+                  key={task.id}
+                  task={task}
+                  selected={selected.has(task.id)}
+                  onToggleSelect={() => toggleSelect(task.id)}
+                  onOpen={() => setEditingTask(task)}
+                  canEdit={isCoordinator}
+                />
+              ))}
           </div>
         ))}
-        {grouped.length === 0 && <p className="p-6 text-center text-sm text-slate-400">No tasks match these filters.</p>}
+        {grouped.length === 0 && <p className="p-7 text-center text-[13px] text-muted">No tasks match these filters.</p>}
       </div>
 
       {editingTask !== undefined && (

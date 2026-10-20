@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { PRIORITIES, PRIORITY_LABELS, STATUSES, STATUS_LABELS } from '../lib/types';
 import type { Category, Person, Task } from '../lib/types';
 import PeoplePicker from './PeoplePicker';
+import { IconX } from './icons';
 
 interface Props {
   task: Task | null;
@@ -138,12 +139,12 @@ export default function TaskDetailModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center">
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-white p-5 sm:rounded-2xl">
+    <div className="dialog-scrim flex items-end justify-center sm:items-center">
+      <div className="dialog max-h-[90vh] w-full overflow-y-auto p-5 sm:m-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-slate-900">{task ? 'Edit task' : 'New task'}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600" aria-label="Close">
-            &times;
+          <h2 className="text-[14.5px] font-semibold text-ink">{task ? 'Edit task' : 'New task'}</h2>
+          <button onClick={onClose} className="icon-btn !border-0" aria-label="Close">
+            <IconX size={14} />
           </button>
         </div>
 
@@ -228,30 +229,22 @@ export default function TaskDetailModal({
             />
           </Field>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-[13px] text-out">{error}</p>}
 
           <div className="flex items-center justify-between gap-2 pt-2">
             {task ? (
-              <button
-                onClick={handleDelete}
-                disabled={saving}
-                className="text-sm font-medium text-red-600 hover:underline disabled:opacity-60"
-              >
+              <button onClick={handleDelete} disabled={saving} className="btn danger-text">
                 Delete
               </button>
             ) : (
               <span />
             )}
             <div className="flex gap-2">
-              <button onClick={onClose} className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">
+              <button onClick={onClose} className="btn secondary">
                 Cancel
               </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
-              >
-                {saving ? 'Saving...' : 'Save'}
+              <button onClick={handleSave} disabled={saving} className="btn">
+                {saving ? 'Saving…' : 'Save'}
               </button>
             </div>
           </div>
@@ -264,7 +257,7 @@ export default function TaskDetailModal({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-medium text-slate-500">{label}</span>
+      <span className="input-label">{label}</span>
       {children}
     </label>
   );

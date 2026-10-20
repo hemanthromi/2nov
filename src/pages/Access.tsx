@@ -64,47 +64,46 @@ export default function Access() {
   }
 
   if (!isBvpAdmin) {
-    return <div className="p-6 text-sm text-slate-500">Only BVP admins can manage access.</div>;
+    return <div className="p-7 text-[13px] text-muted">Only BVP admins can manage access.</div>;
   }
 
-  if (loading) return <div className="p-6 text-sm text-slate-500">Loading...</div>;
+  if (loading) return <div className="p-7 text-[13px] text-muted">Loading&hellip;</div>;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
+    <div className="mx-auto max-w-2xl space-y-4 px-3.5 py-5 md:px-7 md:py-7">
       <div>
-        <h1 className="text-xl font-semibold text-slate-900">Access</h1>
-        <p className="text-sm text-slate-500">
+        <h1>Access</h1>
+        <p className="page-sub">
           Controls who can edit tasks in this app only &mdash; it doesn't change anyone's access in other
           Sampark apps. Everyone with a Sampark account can already view the checklist.
         </p>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-[13px] text-out">{error}</p>}
 
-      <div className="rounded-xl border border-slate-200 bg-white">
-        <ul className="divide-y divide-slate-100">
-          {rows.map((row) => (
-            <li key={row.id} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-slate-800">{row.full_name || row.email}</p>
-                <p className="truncate text-xs text-slate-500">{row.email}</p>
-              </div>
-              <select
-                value={row.bvpRole}
-                disabled={savingId === row.id}
-                onChange={(e) => handleChange(row, e.target.value as BvpRole)}
-                className="shrink-0 rounded-lg border border-slate-300 px-2 py-1.5 text-sm disabled:opacity-60 sm:w-40"
-              >
-                <option value="viewer">Viewer</option>
-                <option value="coordinator">Coordinator</option>
-                <option value="admin">Admin</option>
-              </select>
-            </li>
-          ))}
-        </ul>
+      <div className="panel">
+        {rows.map((row) => (
+          <div key={row.id} className="row flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <p className="row-title truncate">{row.full_name || row.email}</p>
+              <p className="row-meta truncate">{row.email}</p>
+            </div>
+            <select
+              value={row.bvpRole}
+              disabled={savingId === row.id}
+              onChange={(e) => handleChange(row, e.target.value as BvpRole)}
+              className="input shrink-0 sm:w-40"
+            >
+              <option value="viewer">Viewer</option>
+              <option value="coordinator">Coordinator</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        ))}
+        {rows.length === 0 && <p className="p-7 text-center text-[13px] text-muted">No Sampark accounts found.</p>}
       </div>
 
-      <p className="text-xs text-slate-400">
+      <p className="text-[12px] text-muted">
         Viewer: read-only. Coordinator: can edit tasks, people and categories. Admin: coordinator rights plus
         managing who has access here.
       </p>
