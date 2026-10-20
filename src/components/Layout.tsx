@@ -5,7 +5,8 @@ const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: '▤' },
   { to: '/tasks', label: 'Tasks', icon: '✓' },
   { to: '/people', label: 'People', icon: '●' },
-  { to: '/import', label: 'Import', icon: '⬇' },
+  { to: '/import', label: 'Import', icon: '⬇', requires: 'coordinator' as const },
+  { to: '/access', label: 'Access', icon: '⚑', requires: 'admin' as const },
 ];
 
 function navClass(isActive: boolean) {
@@ -23,12 +24,17 @@ function mobileNavClass(isActive: boolean) {
 }
 
 export default function Layout() {
-  const { profile, signOut, isCoordinator } = useAuth();
-  const visibleItems = NAV_ITEMS.filter((item) => item.to !== '/import' || isCoordinator);
+  const { profile, signOut, isCoordinator, isBvpAdmin } = useAuth();
+  const visibleItems = NAV_ITEMS.filter((item) => {
+    if (item.requires === 'admin') return isBvpAdmin;
+    if (item.requires === 'coordinator') return isCoordinator;
+    return true;
+  });
+  const roleLabel = isBvpAdmin ? 'BVP admin' : isCoordinator ? 'BVP coordinator' : 'Viewer';
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
-      <aside className="hidden w-60 flex-col border-r border-slate-200 bg-white p-4 md:flex">
+    <div className="flex h-screen flex-col overflow-hidden md:flex-row">
+      <aside className="hidden w-60 flex-col overflow-y-auto border-r border-slate-200 bg-white p-4 md:flex">
         <div className="mb-6 px-2">
           <p className="text-sm font-semibold text-slate-900">RLD BVP Event</p>
           <p className="text-xs text-slate-500">Task tracker</p>
@@ -43,7 +49,7 @@ export default function Layout() {
         </nav>
         <div className="mt-6 border-t border-slate-200 pt-4 text-xs text-slate-500">
           <p className="truncate font-medium text-slate-700">{profile?.full_name || profile?.email}</p>
-          <p className="capitalize">{profile?.role ?? 'viewer'}</p>
+          <p>{roleLabel}</p>
           <button onClick={signOut} className="mt-2 text-brand-700 hover:underline">
             Sign out
           </button>

@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Tasks from './pages/Tasks';
 import People from './pages/People';
 import Import from './pages/Import';
+import Access from './pages/Access';
 
 export default function App() {
   const { session, profile, loading, signOut } = useAuth();
@@ -46,6 +47,7 @@ export default function App() {
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/people" element={<People />} />
         <Route path="/import" element={<Import />} />
+        <Route path="/access" element={<Access />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

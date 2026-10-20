@@ -16,8 +16,12 @@ interface AuthState {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  /** Can edit tasks/categories/people/import for this app (bvp_access grant, or admin). */
   isCoordinator: boolean;
+  /** Can manage who has access to this app (bvp_access grant, or global admin). */
+  isBvpAdmin: boolean;
   signOut: () => Promise<void>;
+  refreshAccess: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
@@ -25,6 +29,8 @@ const AuthContext = createContext<AuthState | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [isCoordinator, setIsCoordinator] = useState(false);
+  const [isBvpAdmin, setIsBvpAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,6 +43,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(newSession);
       if (!newSession) {
         setProfile(null);
+        setIsCoordinator(false);
+        setIsBvpAdmin(false);
         setLoading(false);
       }
     });
@@ -44,34 +52,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => listener.subscription.unsubscribe();
   }, []);
 
+  async function loadAccess(userId: string) {
+    const [profileRes, coordinatorRes, adminRes] = await Promise.all([
+      supabase.from('profiles').select('id, email, full_name, role, is_active').eq('id', userId).maybeSingle(),
+      supabase.rpc('bvp_is_coordinator'),
+      supabase.rpc('bvp_is_bvp_admin'),
+    ]);
+    setProfile(profileRes.data as Profile | null);
+    setIsCoordinator(Boolean(coordinatorRes.data));
+    setIsBvpAdmin(Boolean(adminRes.data));
+    setLoading(false);
+  }
+
   useEffect(() => {
     if (!session?.user) return;
-    let active = true;
     setLoading(true);
-    supabase
-      .from('profiles')
-      .select('id, email, full_name, role, is_active')
-      .eq('id', session.user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (active) {
-          setProfile(data as Profile | null);
-          setLoading(false);
-        }
-      });
-    return () => {
-      active = false;
-    };
+    loadAccess(session.user.id);
   }, [session?.user?.id]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
   };
 
-  const isCoordinator = profile?.role === 'admin' || profile?.role === 'coordinator';
+  const refreshAccess = async () => {
+    if (session?.user) await loadAccess(session.user.id);
+  };
 
   return (
-    <AuthContext.Provider value={{ session, profile, loading, isCoordinator, signOut }}>
+    <AuthContext.Provider
+      value={{ session, profile, loading, isCoordinator, isBvpAdmin, signOut, refreshAccess }}
+    >
       {children}
     </AuthContext.Provider>
   );

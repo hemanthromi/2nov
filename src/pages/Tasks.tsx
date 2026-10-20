@@ -19,13 +19,18 @@ export default function Tasks() {
   const [priorityFilter, setPriorityFilter] = useState('');
   const [assigneeFilter, setAssigneeFilter] = useState('');
   const [overdueOnly, setOverdueOnly] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const categoryFilter = params.get('category') ?? '';
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [editingTask, setEditingTask] = useState<Task | null | undefined>(undefined);
   const [newTaskCategoryId, setNewTaskCategoryId] = useState<string | undefined>();
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [addingCategory, setAddingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
+
+  const activeFilterCount = [statusFilter, priorityFilter, assigneeFilter, categoryFilter, overdueOnly ? '1' : '']
+    .filter(Boolean).length;
 
   const filtered = useMemo(() => {
     return tasks.filter((t) => {
@@ -75,6 +80,14 @@ export default function Tasks() {
     });
   }
 
+  function clearFilters() {
+    setStatusFilter('');
+    setPriorityFilter('');
+    setAssigneeFilter('');
+    setOverdueOnly(false);
+    setParams({});
+  }
+
   async function handleCreatePerson(name: string): Promise<string | null> {
     const { data, error } = await supabase.from('bvp_people').insert({ name }).select('id').single();
     if (error) {
@@ -104,99 +117,159 @@ export default function Tasks() {
     if (!newCategoryName.trim()) return;
     await handleCreateCategory(newCategoryName.trim());
     setNewCategoryName('');
+    setAddingCategory(false);
   }
 
   if (loading) return <div className="p-6 text-sm text-slate-500">Loading tasks...</div>;
   if (error) return <div className="p-6 text-sm text-red-600">{error}</div>;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4 p-4 md:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+    <div className="mx-auto max-w-5xl p-4 md:p-6">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl font-semibold text-slate-900">Tasks</h1>
         {isCoordinator && (
-          <button
-            onClick={() => {
-              setNewTaskCategoryId(categoryFilter || undefined);
-              setEditingTask(null);
-            }}
-            className="rounded-lg bg-brand-600 px-3 py-2 text-sm font-medium text-white hover:bg-brand-700"
-          >
-            + New task
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setAddingCategory((v) => !v)}
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+            >
+              + Category
+            </button>
+            <button
+              onClick={() => {
+                setNewTaskCategoryId(categoryFilter || undefined);
+                setEditingTask(null);
+              }}
+              className="rounded-lg bg-brand-600 px-3 py-2 text-sm font-medium text-white hover:bg-brand-700"
+            >
+              + New task
+            </button>
+          </div>
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search tasks..."
-          className="input max-w-xs"
-        />
-        <select
-          value={categoryFilter}
-          onChange={(e) => setParams(e.target.value ? { category: e.target.value } : {})}
-          className="rounded-lg border border-slate-300 px-2 py-2 text-sm"
-        >
-          <option value="">All categories</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-lg border border-slate-300 px-2 py-2 text-sm">
-          <option value="">All statuses</option>
-          {STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {STATUS_LABELS[s]}
-            </option>
-          ))}
-        </select>
-        <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="rounded-lg border border-slate-300 px-2 py-2 text-sm">
-          <option value="">All priorities</option>
-          {PRIORITIES.map((p) => (
-            <option key={p} value={p}>
-              {PRIORITY_LABELS[p]}
-            </option>
-          ))}
-        </select>
-        <select value={assigneeFilter} onChange={(e) => setAssigneeFilter(e.target.value)} className="rounded-lg border border-slate-300 px-2 py-2 text-sm">
-          <option value="">Everyone</option>
-          {people.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
-        <label className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-2 py-2 text-sm text-slate-600">
-          <input type="checkbox" checked={overdueOnly} onChange={(e) => setOverdueOnly(e.target.checked)} />
-          Overdue only
-        </label>
-      </div>
-
-      {isCoordinator && (
-        <div className="flex items-center gap-2">
+      {addingCategory && (
+        <div className="mb-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-3">
           <input
             value={newCategoryName}
             onChange={(e) => setNewCategoryName(e.target.value)}
-            placeholder="Add a new category..."
-            className="input max-w-xs"
+            placeholder="New category name"
+            autoFocus
+            className="input"
           />
-          <button onClick={handleAddCategory} className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50">
+          <button onClick={handleAddCategory} className="rounded-lg bg-brand-600 px-3 py-2 text-sm font-medium text-white hover:bg-brand-700">
             Add
+          </button>
+          <button
+            onClick={() => {
+              setAddingCategory(false);
+              setNewCategoryName('');
+            }}
+            className="text-sm text-slate-400 hover:text-slate-600"
+          >
+            Cancel
           </button>
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="mb-4 flex gap-2">
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search tasks..."
+          className="input"
+        />
+        <button
+          onClick={() => setFiltersOpen((v) => !v)}
+          className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium ${
+            filtersOpen || activeFilterCount > 0
+              ? 'border-brand-300 bg-brand-50 text-brand-700'
+              : 'border-slate-300 text-slate-600 hover:bg-slate-50'
+          }`}
+        >
+          Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+        </button>
+      </div>
+
+      {filtersOpen && (
+        <div className="mb-4 space-y-3 rounded-xl border border-slate-200 bg-white p-3">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <select
+              value={categoryFilter}
+              onChange={(e) => setParams(e.target.value ? { category: e.target.value } : {})}
+              className="rounded-lg border border-slate-300 px-2 py-2 text-sm"
+            >
+              <option value="">All categories</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-lg border border-slate-300 px-2 py-2 text-sm">
+              <option value="">All statuses</option>
+              {STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {STATUS_LABELS[s]}
+                </option>
+              ))}
+            </select>
+            <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="rounded-lg border border-slate-300 px-2 py-2 text-sm">
+              <option value="">All priorities</option>
+              {PRIORITIES.map((p) => (
+                <option key={p} value={p}>
+                  {PRIORITY_LABELS[p]}
+                </option>
+              ))}
+            </select>
+            <select value={assigneeFilter} onChange={(e) => setAssigneeFilter(e.target.value)} className="rounded-lg border border-slate-300 px-2 py-2 text-sm">
+              <option value="">Everyone</option>
+              {people.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-1.5 text-sm text-slate-600">
+              <input type="checkbox" checked={overdueOnly} onChange={(e) => setOverdueOnly(e.target.checked)} />
+              Overdue only
+            </label>
+            {activeFilterCount > 0 && (
+              <button onClick={clearFilters} className="text-xs font-medium text-slate-400 hover:text-slate-600">
+                Clear filters
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {selected.size > 0 && (
+        <BulkActionBar
+          selectedIds={[...selected]}
+          people={people}
+          onCreatePerson={handleCreatePerson}
+          onDone={() => {
+            refresh();
+          }}
+          onClear={() => setSelected(new Set())}
+        />
+      )}
+
+      <div className="space-y-3">
         {grouped.map(({ category, tasks: catTasks }) => (
           <div key={category.id} className="rounded-xl border border-slate-200 bg-white">
             <button
               onClick={() => toggleCollapsed(category.id)}
               className="flex w-full items-center justify-between px-4 py-3 text-left"
             >
-              <span className="text-sm font-semibold text-slate-900">{category.name}</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                <span className={`text-slate-400 transition-transform ${collapsed.has(category.id) ? '-rotate-90' : ''}`}>
+                  &#9662;
+                </span>
+                {category.name}
+              </span>
               <span className="text-xs text-slate-400">
                 {catTasks.length} task{catTasks.length === 1 ? '' : 's'}
               </span>
@@ -219,18 +292,6 @@ export default function Tasks() {
         ))}
         {grouped.length === 0 && <p className="p-6 text-center text-sm text-slate-400">No tasks match these filters.</p>}
       </div>
-
-      {selected.size > 0 && (
-        <BulkActionBar
-          selectedIds={[...selected]}
-          people={people}
-          onCreatePerson={handleCreatePerson}
-          onDone={() => {
-            refresh();
-          }}
-          onClear={() => setSelected(new Set())}
-        />
-      )}
 
       {editingTask !== undefined && (
         <TaskDetailModal

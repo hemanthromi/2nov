@@ -57,7 +57,7 @@ export default function BulkActionBar({ selectedIds, people, onCreatePerson, onD
 
   return (
     <>
-      <div className="sticky bottom-16 z-20 mx-4 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-lg md:bottom-4">
+      <div className="sticky top-0 z-30 -mx-4 mb-3 flex flex-wrap items-center gap-2 border-b border-slate-200 bg-white/95 px-4 py-2.5 shadow-md backdrop-blur md:-mx-6 md:px-6">
         <span className="text-sm font-medium text-slate-700">{selectedIds.length} selected</span>
 
         <button
