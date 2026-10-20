@@ -1,13 +1,16 @@
 import { useRef, useState } from 'react';
 import { useAuth } from '../lib/useAuth';
 import { useTaskData } from '../lib/useTaskData';
+import { useChecklistContext } from '../lib/useChecklistContext';
 import { buildImportPlan, parseChecklistFile, applyImportPlan } from '../lib/importChecklist';
 import type { ImportPlan, ImportResult } from '../lib/importChecklist';
+import { downloadImportTemplate, exportTasksCsv } from '../lib/csvExport';
 import { IconDownload } from '../components/icons';
 
 export default function Import() {
   const { isCoordinator } = useAuth();
-  const { categories, tasks, refresh } = useTaskData();
+  const { currentChecklistId, currentChecklist } = useChecklistContext();
+  const { categories, people, tasks, refresh } = useTaskData(currentChecklistId);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [fileName, setFileName] = useState('');
@@ -18,6 +21,10 @@ export default function Import() {
 
   if (!isCoordinator) {
     return <div className="p-7 text-[14.5px] text-muted">Only coordinators and admins can import or update tasks from a file.</div>;
+  }
+
+  if (!currentChecklistId) {
+    return <div className="p-7 text-[14.5px] text-muted">Pick or create a checklist first.</div>;
   }
 
   const existingBySourceNo = new Map(tasks.filter((t) => t.source_no != null).map((t) => [t.source_no as number, t.id]));
@@ -42,10 +49,10 @@ export default function Import() {
   }
 
   async function handleConfirm() {
-    if (!plan) return;
+    if (!plan || !currentChecklistId) return;
     setBusy(true);
     try {
-      const res = await applyImportPlan(fileName, plan);
+      const res = await applyImportPlan(fileName, currentChecklistId, plan);
       setResult(res);
       setPlan(null);
       await refresh();
@@ -64,9 +71,22 @@ export default function Import() {
       <div>
         <h1>Import tasks</h1>
         <p className="page-sub">
-          Upload an Excel (.xlsx) or CSV file with columns like No., Section, Task / Item, Type, Qty, Owner,
-          Deadline, Priority, Status, Notes. Rows with a matching No. update that task; others are added as new.
+          Importing into <strong className="text-ink">{currentChecklist?.name}</strong>. Upload an Excel (.xlsx)
+          or CSV file with columns like No., Section, Task / Item, Type, Qty, Owner, Deadline, Priority, Status,
+          Notes, Tags. Rows with a matching No. update that task; others are added as new.
         </p>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <button onClick={downloadImportTemplate} className="btn secondary small">
+          Download template CSV
+        </button>
+        <button
+          onClick={() => exportTasksCsv(currentChecklist?.name ?? 'checklist', tasks, categories, people)}
+          className="btn secondary small"
+        >
+          Export all tasks
+        </button>
       </div>
 
       <div className="panel border-dashed p-9 text-center">

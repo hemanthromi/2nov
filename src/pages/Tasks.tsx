@@ -1,19 +1,40 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTaskData } from '../lib/useTaskData';
 import { useAuth } from '../lib/useAuth';
+import { useChecklistContext } from '../lib/useChecklistContext';
 import { supabase } from '../lib/supabase';
 import { PRIORITIES, PRIORITY_LABELS, STATUSES, STATUS_LABELS } from '../lib/types';
 import type { Task } from '../lib/types';
 import TaskRow from '../components/TaskRow';
+import TaskCard from '../components/TaskCard';
 import TaskDetailModal from '../components/TaskDetailModal';
 import BulkActionBar from '../components/BulkActionBar';
 import { IconChevronDown, IconFilter, IconPlus, IconSearch } from '../components/icons';
 
+type ViewMode = 'list' | 'cards';
+const VIEW_STORAGE_KEY = 'bvp-tasks-view';
+
 export default function Tasks() {
-  const { categories, people, tasks, loading, error, refresh } = useTaskData();
+  const { currentChecklistId } = useChecklistContext();
+  const { categories, people, tasks, loading, error, refresh } = useTaskData(currentChecklistId);
   const { isCoordinator } = useAuth();
   const [params, setParams] = useSearchParams();
+
+  const [view, setView] = useState<ViewMode>(() => {
+    try {
+      return (localStorage.getItem(VIEW_STORAGE_KEY) as ViewMode) || 'list';
+    } catch {
+      return 'list';
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(VIEW_STORAGE_KEY, view);
+    } catch {
+      /* ignore */
+    }
+  }, [view]);
 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -30,6 +51,12 @@ export default function Tasks() {
   const [addingCategory, setAddingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
 
+  const tagSuggestions = useMemo(() => {
+    const set = new Set<string>();
+    for (const t of tasks) for (const tag of t.tags) set.add(tag);
+    return [...set].sort();
+  }, [tasks]);
+
   const activeFilterCount = [statusFilter, priorityFilter, assigneeFilter, categoryFilter, overdueOnly ? '1' : '']
     .filter(Boolean).length;
 
@@ -45,7 +72,8 @@ export default function Tasks() {
       }
       if (search.trim()) {
         const q = search.toLowerCase();
-        if (!t.title.toLowerCase().includes(q) && !(t.notes ?? '').toLowerCase().includes(q)) return false;
+        const matchesTag = t.tags.some((tag) => tag.toLowerCase().includes(q));
+        if (!t.title.toLowerCase().includes(q) && !(t.notes ?? '').toLowerCase().includes(q) && !matchesTag) return false;
       }
       return true;
     });
@@ -98,8 +126,13 @@ export default function Tasks() {
   }
 
   async function handleCreateCategory(name: string): Promise<string | null> {
+    if (!currentChecklistId) return null;
     const nextSort = Math.max(0, ...categories.map((c) => c.sort)) + 1;
-    const { data, error } = await supabase.from('bvp_categories').insert({ name, sort: nextSort }).select('id').single();
+    const { data, error } = await supabase
+      .from('bvp_categories')
+      .insert({ name, sort: nextSort, checklist_id: currentChecklistId })
+      .select('id')
+      .single();
     if (error) {
       alert(error.message);
       return null;
@@ -117,6 +150,20 @@ export default function Tasks() {
 
   if (loading) return <div className="p-7 text-[14.5px] text-muted">Loading tasks&hellip;</div>;
   if (error) return <div className="p-7 text-[14.5px] text-out">{error}</div>;
+  if (!currentChecklistId) {
+    return <div className="p-7 text-[14.5px] text-muted">No checklist yet &mdash; create one from the switcher in the sidebar.</div>;
+  }
+
+  function renderTask(task: Task) {
+    const props = {
+      task,
+      selected: selected.has(task.id),
+      onToggleSelect: () => toggleSelect(task.id),
+      onOpen: () => setEditingTask(task),
+      canEdit: isCoordinator,
+    };
+    return view === 'cards' ? <TaskCard key={task.id} {...props} /> : <TaskRow key={task.id} {...props} />;
+  }
 
   return (
     <div className="mx-auto max-w-[1400px] px-3.5 py-5 md:px-7 md:py-7">
@@ -173,7 +220,7 @@ export default function Tasks() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search tasks..."
+            placeholder="Search tasks or tags..."
             className="input pl-9"
           />
         </div>
@@ -184,6 +231,14 @@ export default function Tasks() {
           <IconFilter size={13} />
           Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
         </button>
+        <div className="seg shrink-0">
+          <button type="button" className={view === 'list' ? 'on' : ''} onClick={() => setView('list')}>
+            List
+          </button>
+          <button type="button" className={view === 'cards' ? 'on' : ''} onClick={() => setView('cards')}>
+            Cards
+          </button>
+        </div>
       </div>
 
       {filtersOpen && (
@@ -240,6 +295,9 @@ export default function Tasks() {
         <BulkActionBar
           selectedIds={[...selected]}
           people={people}
+          categories={categories}
+          tasks={tasks}
+          tagSuggestions={tagSuggestions}
           onCreatePerson={handleCreatePerson}
           onDone={() => refresh()}
           onClear={() => setSelected(new Set())}
@@ -259,15 +317,10 @@ export default function Tasks() {
               </span>
             </button>
             {!collapsed.has(category.id) &&
-              catTasks.map((task) => (
-                <TaskRow
-                  key={task.id}
-                  task={task}
-                  selected={selected.has(task.id)}
-                  onToggleSelect={() => toggleSelect(task.id)}
-                  onOpen={() => setEditingTask(task)}
-                  canEdit={isCoordinator}
-                />
+              (view === 'cards' ? (
+                <div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 lg:grid-cols-3">{catTasks.map(renderTask)}</div>
+              ) : (
+                catTasks.map(renderTask)
               ))}
           </div>
         ))}
@@ -280,6 +333,7 @@ export default function Tasks() {
           categories={categories}
           people={people}
           defaultCategoryId={newTaskCategoryId}
+          tagSuggestions={tagSuggestions}
           onClose={() => setEditingTask(undefined)}
           onSaved={refresh}
           onCreatePerson={handleCreatePerson}

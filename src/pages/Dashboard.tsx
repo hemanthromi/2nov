@@ -1,12 +1,21 @@
 import { Link } from 'react-router-dom';
 import { useTaskData } from '../lib/useTaskData';
+import { useChecklistContext } from '../lib/useChecklistContext';
 import { isDone, isOverdue } from '../lib/format';
 
 export default function Dashboard() {
-  const { categories, tasks, loading, error } = useTaskData();
+  const { currentChecklistId, currentChecklist, currentEvent, loading: checklistLoading } = useChecklistContext();
+  const { categories, tasks, loading, error } = useTaskData(currentChecklistId);
 
-  if (loading) return <Centered>Loading checklist...</Centered>;
+  if (checklistLoading || loading) return <Centered>Loading checklist...</Centered>;
   if (error) return <Centered className="text-out">{error}</Centered>;
+  if (!currentChecklistId) {
+    return (
+      <Centered>
+        No checklist yet &mdash; use the switcher in the sidebar to create an event and a checklist.
+      </Centered>
+    );
+  }
 
   const total = tasks.length;
   const done = tasks.filter((t) => isDone(t.status)).length;
@@ -17,9 +26,9 @@ export default function Dashboard() {
   return (
     <div className="mx-auto max-w-[1400px] space-y-5 px-3.5 py-5 md:px-7 md:py-7">
       <div>
-        <h1>Event checklist overview</h1>
+        <h1>{currentChecklist?.name ?? 'Checklist overview'}</h1>
         <p className="page-sub">
-          RLD Matrushakti BVP event &middot; {total} tasks across {categories.length} categories
+          {currentEvent?.name} &middot; {total} tasks across {categories.length} categories
         </p>
       </div>
 

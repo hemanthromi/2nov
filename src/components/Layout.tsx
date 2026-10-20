@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../lib/useAuth';
 import { useTheme } from '../lib/useTheme';
+import ChecklistSwitcher from './ChecklistSwitcher';
 import { IconGrid, IconCheckCircle, IconUsers, IconDownload, IconFlag, IconSignOut, IconSun, IconMoon, IconSparkle } from './icons';
 
 const NAV_ITEMS = [
@@ -36,7 +37,11 @@ export default function Layout() {
           </span>
           <span className="text-[19.5px] font-semibold text-ink">RLD BVP</span>
         </div>
-        <p className="mb-5 px-1 text-[11.5px] font-semibold uppercase tracking-wide text-muted">Event tracker</p>
+        <p className="mb-3 px-1 text-[11.5px] font-semibold uppercase tracking-wide text-muted">Event tracker</p>
+
+        <div className="mb-4">
+          <ChecklistSwitcher />
+        </div>
 
         <nav className="flex-1 space-y-0.5">
           {visibleItems.map(({ to, label, Icon }) => (
@@ -77,16 +82,21 @@ export default function Layout() {
         </div>
       </aside>
 
-      <header className="sticky top-0 z-20 flex h-[50px] shrink-0 items-center justify-between border-b border-line bg-paper px-3.5 md:hidden">
-        <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal text-on-teal">
-            <IconSparkle size={15} />
-          </span>
-          <span className="text-[16.5px] font-semibold text-ink">RLD BVP</span>
+      <header className="sticky top-0 z-20 flex shrink-0 flex-col border-b border-line bg-paper md:hidden">
+        <div className="flex h-[50px] items-center justify-between px-3.5">
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal text-on-teal">
+              <IconSparkle size={15} />
+            </span>
+            <span className="text-[16.5px] font-semibold text-ink">RLD BVP</span>
+          </div>
+          <button onClick={signOut} className="icon-btn" aria-label="Sign out">
+            <IconSignOut size={15} />
+          </button>
         </div>
-        <button onClick={signOut} className="icon-btn" aria-label="Sign out">
-          <IconSignOut size={15} />
-        </button>
+        <div className="border-t border-line px-3.5 py-2">
+          <ChecklistSwitcher compact />
+        </div>
       </header>
 
       <main className="flex-1 overflow-y-auto pb-[64px] md:pb-0">

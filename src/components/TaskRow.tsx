@@ -1,6 +1,7 @@
 import type { Task } from '../lib/types';
 import { PRIORITY_LABELS, STATUS_LABELS } from '../lib/types';
 import { formatDate, isDone, isOverdue } from '../lib/format';
+import { PRIORITY_TAG, STATUS_TAG } from '../lib/taskStyles';
 
 interface Props {
   task: Task;
@@ -9,25 +10,6 @@ interface Props {
   onOpen: () => void;
   canEdit: boolean;
 }
-
-const PRIORITY_TAG: Record<Task['priority'], string> = {
-  critical: 'tag error',
-  high: 'tag warn',
-  medium: 'tag teal',
-  low: 'tag muted',
-};
-
-const STATUS_TAG: Record<Task['status'], string> = {
-  not_started: 'tag muted',
-  open: 'tag teal',
-  pending_approval: 'tag warn',
-  undecided: 'tag warn',
-  in_progress: 'tag teal',
-  confirmed: 'tag success',
-  blocked: 'tag error',
-  done: 'tag success',
-  cancelled: 'tag error',
-};
 
 export default function TaskRow({ task, selected, onToggleSelect, onOpen, canEdit }: Props) {
   const overdue = isOverdue(task.due_date, task.status);
@@ -64,6 +46,11 @@ export default function TaskRow({ task, selected, onToggleSelect, onOpen, canEdi
           <span className={PRIORITY_TAG[task.priority]}>{PRIORITY_LABELS[task.priority]}</span>
           <span className={STATUS_TAG[task.status]}>{STATUS_LABELS[task.status]}</span>
           {overdue && <span className="tag error">Overdue</span>}
+          {task.tags.map((t) => (
+            <span key={t} className="tag muted">
+              {t}
+            </span>
+          ))}
         </div>
       </button>
     </div>

@@ -44,8 +44,24 @@ export const PRIORITY_LABELS: Record<Priority, string> = {
   low: 'Low',
 };
 
+export interface Event {
+  id: string;
+  name: string;
+  event_date: string | null;
+  description: string | null;
+  created_at: string;
+}
+
+export interface Checklist {
+  id: string;
+  event_id: string;
+  name: string;
+  created_at: string;
+}
+
 export interface Category {
   id: string;
+  checklist_id: string;
   name: string;
   sort: number;
   created_at: string;
@@ -70,6 +86,7 @@ export interface TaskAssignee {
 
 export interface Task {
   id: string;
+  checklist_id: string;
   category_id: string;
   source_no: number | null;
   title: string;
@@ -79,6 +96,7 @@ export interface Task {
   status: TaskStatus;
   due_date: string | null;
   notes: string | null;
+  tags: string[];
   sort: number;
   created_at: string;
   updated_at: string;
@@ -96,4 +114,5 @@ export interface ImportRow {
   priority?: string;
   status?: string;
   notes?: string;
+  tags?: string;
 }

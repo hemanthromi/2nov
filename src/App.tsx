@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from './lib/useAuth';
+import { ChecklistProvider } from './lib/useChecklistContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -34,15 +35,17 @@ export default function App() {
   }
 
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/tasks" element={<Tasks />} />
-        <Route path="/people" element={<People />} />
-        <Route path="/import" element={<Import />} />
-        <Route path="/access" element={<Access />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Route>
-    </Routes>
+    <ChecklistProvider>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/tasks" element={<Tasks />} />
+          <Route path="/people" element={<People />} />
+          <Route path="/import" element={<Import />} />
+          <Route path="/access" element={<Access />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </ChecklistProvider>
   );
 }

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/useAuth';
 import { useTaskData } from '../lib/useTaskData';
+import { useChecklistContext } from '../lib/useChecklistContext';
 import { IconPlus } from '../components/icons';
 
 function initials(name: string) {
@@ -10,7 +11,8 @@ function initials(name: string) {
 }
 
 export default function People() {
-  const { people, tasks, loading, error, refresh } = useTaskData();
+  const { currentChecklistId } = useChecklistContext();
+  const { people, tasks, loading, error, refresh } = useTaskData(currentChecklistId);
   const { isCoordinator } = useAuth();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');

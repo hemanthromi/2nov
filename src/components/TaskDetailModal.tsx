@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { PRIORITIES, PRIORITY_LABELS, STATUSES, STATUS_LABELS } from '../lib/types';
 import type { Category, Person, Task } from '../lib/types';
 import PeoplePicker from './PeoplePicker';
+import TagInput from './TagInput';
 import { IconX } from './icons';
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
   categories: Category[];
   people: Person[];
   defaultCategoryId?: string;
+  tagSuggestions: string[];
   onClose: () => void;
   onSaved: () => void;
   onCreatePerson: (name: string) => Promise<string | null>;
@@ -21,6 +23,7 @@ export default function TaskDetailModal({
   categories,
   people,
   defaultCategoryId,
+  tagSuggestions,
   onClose,
   onSaved,
   onCreatePerson,
@@ -35,6 +38,7 @@ export default function TaskDetailModal({
   const [status, setStatus] = useState(task?.status ?? 'not_started');
   const [dueDate, setDueDate] = useState(task?.due_date ?? '');
   const [notes, setNotes] = useState(task?.notes ?? '');
+  const [tags, setTags] = useState<string[]>(task?.tags ?? []);
   const [selectedPeople, setSelectedPeople] = useState<string[]>(
     task?.assignees?.map((a) => a.person_id) ?? [],
   );
@@ -78,6 +82,7 @@ export default function TaskDetailModal({
       status,
       due_date: dueDate || null,
       notes: notes.trim() || null,
+      tags,
     };
 
     let taskId = task?.id;
@@ -227,6 +232,10 @@ export default function TaskDetailModal({
               className="input min-h-20"
               placeholder="Context, dependencies, source reference..."
             />
+          </Field>
+
+          <Field label="Tags">
+            <TagInput tags={tags} onChange={setTags} suggestions={tagSuggestions} />
           </Field>
 
           {error && <p className="text-[14.5px] text-out">{error}</p>}

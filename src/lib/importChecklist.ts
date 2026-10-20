@@ -26,6 +26,8 @@ const HEADER_ALIASES: Record<string, keyof ImportRow> = {
   'status': 'status',
   'notes': 'notes',
   'note': 'notes',
+  'tags': 'tags',
+  'tag': 'tags',
 };
 
 function normalizeHeader(h: string): string {
@@ -91,6 +93,7 @@ export async function parseChecklistFile(file: File): Promise<ImportRow[]> {
       priority: mapped.priority,
       status: mapped.status,
       notes: mapped.notes,
+      tags: mapped.tags,
     });
   }
   return rows;
@@ -166,13 +169,13 @@ export interface ImportResult {
   errors: string[];
 }
 
-export async function applyImportPlan(file_name: string, plan: ImportPlan): Promise<ImportResult> {
+export async function applyImportPlan(file_name: string, checklistId: string, plan: ImportPlan): Promise<ImportResult> {
   const errors: string[] = [];
   let created = 0;
   let updated = 0;
 
-  // 1. ensure categories exist
-  const { data: cats, error: catErr } = await supabase.from('bvp_categories').select('id, name, sort');
+  // 1. ensure categories exist (scoped to this checklist)
+  const { data: cats, error: catErr } = await supabase.from('bvp_categories').select('id, name, sort').eq('checklist_id', checklistId);
   if (catErr) throw catErr;
   const categoryByLower = new Map((cats ?? []).map((c) => [c.name.toLowerCase(), c] as const));
   let nextSort = Math.max(0, ...(cats ?? []).map((c) => c.sort)) + 1;
@@ -181,7 +184,7 @@ export async function applyImportPlan(file_name: string, plan: ImportPlan): Prom
     if (categoryByLower.has(name.toLowerCase())) continue;
     const { data, error } = await supabase
       .from('bvp_categories')
-      .insert({ name, sort: nextSort++ })
+      .insert({ name, sort: nextSort++, checklist_id: checklistId })
       .select('id, name, sort')
       .single();
     if (error) {
@@ -235,6 +238,9 @@ export async function applyImportPlan(file_name: string, plan: ImportPlan): Prom
 
     const priority: Priority = (row.priority && PRIORITY_MAP[row.priority.toLowerCase()]) || 'medium';
     const status: TaskStatus = (row.status && STATUS_MAP[row.status.toLowerCase()]) || 'not_started';
+    const tags = row.tags
+      ? row.tags.split(/[,;]/).map((t) => t.trim()).filter(Boolean)
+      : undefined;
 
     const taskPayload = {
       category_id: category.id,
@@ -246,6 +252,7 @@ export async function applyImportPlan(file_name: string, plan: ImportPlan): Prom
       status,
       due_date: row.deadline ?? null,
       notes: row.notes ?? null,
+      ...(tags ? { tags } : {}),
     };
 
     let taskId: string | null = null;
@@ -253,7 +260,7 @@ export async function applyImportPlan(file_name: string, plan: ImportPlan): Prom
     if (row.no != null) {
       const { data, error } = await supabase
         .from('bvp_tasks')
-        .upsert(taskPayload, { onConflict: 'source_no' })
+        .upsert(taskPayload, { onConflict: 'checklist_id,source_no', ignoreDuplicates: false })
         .select('id')
         .single();
       if (error) {
@@ -267,6 +274,7 @@ export async function applyImportPlan(file_name: string, plan: ImportPlan): Prom
       const { data: existing } = await supabase
         .from('bvp_tasks')
         .select('id')
+        .eq('checklist_id', checklistId)
         .eq('category_id', category.id)
         .ilike('title', row.title)
         .is('source_no', null)
