@@ -24,7 +24,7 @@ export default {
         note: { ink: 'var(--note-ink)', bg: 'var(--note-bg)' },
       },
       fontSize: {
-        base: ['13.5px', '1.45'],
+        base: ['15px', '1.45'],
       },
       borderRadius: {
         btn: '8px',

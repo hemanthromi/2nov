@@ -12,7 +12,7 @@ export default function App() {
   const { session, profile, loading, signOut } = useAuth();
 
   if (loading) {
-    return <div className="flex min-h-screen items-center justify-center bg-bg text-[13px] text-muted">Loading&hellip;</div>;
+    return <div className="flex min-h-screen items-center justify-center bg-bg text-[14.5px] text-muted">Loading&hellip;</div>;
   }
 
   if (!session) {

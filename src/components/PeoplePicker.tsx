@@ -46,7 +46,7 @@ export default function PeoplePicker({ people, selected, onToggle, onCreate }: P
               type="button"
               key={p.id}
               onClick={() => onToggle(p.id)}
-              className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[13px] ${
+              className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[14.5px] ${
                 isSelected ? 'bg-pale text-teal' : 'text-ink hover:bg-hover'
               }`}
             >
@@ -55,7 +55,7 @@ export default function PeoplePicker({ people, selected, onToggle, onCreate }: P
             </button>
           );
         })}
-        {filtered.length === 0 && <p className="px-3 py-2 text-[13px] text-muted">No matches</p>}
+        {filtered.length === 0 && <p className="px-3 py-2 text-[14.5px] text-muted">No matches</p>}
       </div>
       {query.trim() && !exactMatch && (
         <button type="button" onClick={handleCreate} disabled={creating} className="btn secondary w-full !border-dashed !border-teal !text-teal">

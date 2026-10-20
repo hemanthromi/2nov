@@ -115,8 +115,8 @@ export default function Tasks() {
     setAddingCategory(false);
   }
 
-  if (loading) return <div className="p-7 text-[13px] text-muted">Loading tasks&hellip;</div>;
-  if (error) return <div className="p-7 text-[13px] text-out">{error}</div>;
+  if (loading) return <div className="p-7 text-[14.5px] text-muted">Loading tasks&hellip;</div>;
+  if (error) return <div className="p-7 text-[14.5px] text-out">{error}</div>;
 
   return (
     <div className="mx-auto max-w-[1400px] px-3.5 py-5 md:px-7 md:py-7">
@@ -223,7 +223,7 @@ export default function Tasks() {
             </select>
           </div>
           <div className="flex items-center justify-between">
-            <label className="flex items-center gap-1.5 text-[13px] text-ink">
+            <label className="flex items-center gap-1.5 text-[14.5px] text-ink">
               <input type="checkbox" checked={overdueOnly} onChange={(e) => setOverdueOnly(e.target.checked)} className="accent-[var(--teal)]" />
               Overdue only
             </label>
@@ -254,7 +254,7 @@ export default function Tasks() {
                 <IconChevronDown size={14} className={`text-muted transition-transform ${collapsed.has(category.id) ? '-rotate-90' : ''}`} />
                 {category.name}
               </span>
-              <span className="text-[12px] tabular-nums text-muted">
+              <span className="text-[13.5px] tabular-nums text-muted">
                 {catTasks.length} task{catTasks.length === 1 ? '' : 's'}
               </span>
             </button>
@@ -271,7 +271,7 @@ export default function Tasks() {
               ))}
           </div>
         ))}
-        {grouped.length === 0 && <p className="p-7 text-center text-[13px] text-muted">No tasks match these filters.</p>}
+        {grouped.length === 0 && <p className="p-7 text-center text-[14.5px] text-muted">No tasks match these filters.</p>}
       </div>
 
       {editingTask !== undefined && (

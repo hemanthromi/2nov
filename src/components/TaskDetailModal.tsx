@@ -142,7 +142,7 @@ export default function TaskDetailModal({
     <div className="dialog-scrim flex items-end justify-center sm:items-center">
       <div className="dialog max-h-[90vh] w-full overflow-y-auto p-5 sm:m-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-[14.5px] font-semibold text-ink">{task ? 'Edit task' : 'New task'}</h2>
+          <h2 className="text-[16px] font-semibold text-ink">{task ? 'Edit task' : 'New task'}</h2>
           <button onClick={onClose} className="icon-btn !border-0" aria-label="Close">
             <IconX size={14} />
           </button>
@@ -229,7 +229,7 @@ export default function TaskDetailModal({
             />
           </Field>
 
-          {error && <p className="text-[13px] text-out">{error}</p>}
+          {error && <p className="text-[14.5px] text-out">{error}</p>}
 
           <div className="flex items-center justify-between gap-2 pt-2">
             {task ? (

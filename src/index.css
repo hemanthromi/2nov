@@ -93,13 +93,13 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  font-size: 13.5px;
+  font-size: 15px;
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
 }
 
 h1 {
-  font-size: 21px;
+  font-size: 23px;
   font-weight: 650;
   letter-spacing: -0.5px;
   margin: 0 0 2px;
@@ -113,7 +113,7 @@ h1 {
 @layer components {
   .page-sub {
     color: var(--muted);
-    font-size: 13px;
+    font-size: 14.5px;
   }
 
   .panel {
@@ -133,7 +133,7 @@ h1 {
   }
 
   .panel-title {
-    font-size: 14.5px;
+    font-size: 16px;
     font-weight: 600;
     color: var(--ink);
   }
@@ -149,12 +149,12 @@ h1 {
   }
 
   .row-title {
-    font-size: 14.5px;
+    font-size: 16px;
     font-weight: 650;
     color: var(--ink);
   }
   .row-meta {
-    font-size: 12px;
+    font-size: 13.5px;
     color: var(--muted);
   }
 
@@ -167,7 +167,7 @@ h1 {
     border-radius: 8px;
     background: var(--teal);
     color: var(--on-teal);
-    font-size: 13px;
+    font-size: 14.5px;
     font-weight: 550;
     border: 0;
     white-space: nowrap;
@@ -182,7 +182,7 @@ h1 {
   }
   .btn.small {
     padding: 5px 10px;
-    font-size: 12px;
+    font-size: 13.5px;
   }
   .btn.text {
     background: none;
@@ -216,7 +216,7 @@ h1 {
     color: var(--muted);
     padding: 6px 11px;
     border-radius: 999px;
-    font-size: 12px;
+    font-size: 13.5px;
     background: none;
   }
   .seg button.on {
@@ -229,7 +229,7 @@ h1 {
     display: inline-flex;
     align-items: center;
     border-radius: 999px;
-    font-size: 10px;
+    font-size: 11.5px;
     font-weight: 600;
     padding: 2px 8px;
     background: var(--hover);
@@ -276,7 +276,7 @@ h1 {
   .input-label {
     display: block;
     margin-bottom: 4px;
-    font-size: 12px;
+    font-size: 13.5px;
     color: var(--muted);
   }
 
@@ -301,18 +301,18 @@ h1 {
     padding: 14px 16px;
   }
   .stat-label {
-    font-size: 12px;
+    font-size: 13.5px;
     color: var(--muted);
   }
   .stat-value {
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 650;
     font-variant-numeric: tabular-nums;
     color: var(--ink);
     margin-top: 2px;
   }
   .stat-foot {
-    font-size: 11px;
+    font-size: 12.5px;
     color: var(--muted);
     margin-top: 2px;
   }
@@ -324,7 +324,7 @@ h1 {
     transform: translateX(-50%);
     background: var(--teal);
     color: var(--on-teal);
-    font-size: 12.5px;
+    font-size: 14px;
     font-weight: 550;
     padding: 9px 16px;
     border-radius: 999px;

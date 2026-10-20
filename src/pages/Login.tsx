@@ -40,7 +40,7 @@ export default function Login() {
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal text-on-teal">
             <IconSparkle size={15} />
           </span>
-          <span className="text-[16px] font-semibold text-ink">RLD BVP Event</span>
+          <span className="text-[17.5px] font-semibold text-ink">RLD BVP Event</span>
         </div>
         <p className="page-sub">Sign in with the same phone number / email and password you use for other Sampark apps.</p>
 
@@ -69,13 +69,13 @@ export default function Login() {
               className="input"
             />
           </div>
-          {error && <p className="text-[13px] text-out">{error}</p>}
+          {error && <p className="text-[14.5px] text-out">{error}</p>}
           <button type="submit" disabled={loading} className="btn w-full justify-center">
             {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
 
-        <p className="mt-4 text-[12px] text-muted">Don't have an account yet? Ask a Sampark admin to add you.</p>
+        <p className="mt-4 text-[13.5px] text-muted">Don't have an account yet? Ask a Sampark admin to add you.</p>
       </div>
     </div>
   );

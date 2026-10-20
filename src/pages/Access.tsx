@@ -64,10 +64,10 @@ export default function Access() {
   }
 
   if (!isBvpAdmin) {
-    return <div className="p-7 text-[13px] text-muted">Only BVP admins can manage access.</div>;
+    return <div className="p-7 text-[14.5px] text-muted">Only BVP admins can manage access.</div>;
   }
 
-  if (loading) return <div className="p-7 text-[13px] text-muted">Loading&hellip;</div>;
+  if (loading) return <div className="p-7 text-[14.5px] text-muted">Loading&hellip;</div>;
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 px-3.5 py-5 md:px-7 md:py-7">
@@ -79,7 +79,7 @@ export default function Access() {
         </p>
       </div>
 
-      {error && <p className="text-[13px] text-out">{error}</p>}
+      {error && <p className="text-[14.5px] text-out">{error}</p>}
 
       <div className="panel">
         {rows.map((row) => (
@@ -100,10 +100,10 @@ export default function Access() {
             </select>
           </div>
         ))}
-        {rows.length === 0 && <p className="p-7 text-center text-[13px] text-muted">No Sampark accounts found.</p>}
+        {rows.length === 0 && <p className="p-7 text-center text-[14.5px] text-muted">No Sampark accounts found.</p>}
       </div>
 
-      <p className="text-[12px] text-muted">
+      <p className="text-[13.5px] text-muted">
         Viewer: read-only. Coordinator: can edit tasks, people and categories. Admin: coordinator rights plus
         managing who has access here.
       </p>

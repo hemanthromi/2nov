@@ -34,9 +34,9 @@ export default function Layout() {
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal text-on-teal">
             <IconSparkle size={15} />
           </span>
-          <span className="text-[18px] font-semibold text-ink">RLD BVP</span>
+          <span className="text-[19.5px] font-semibold text-ink">RLD BVP</span>
         </div>
-        <p className="mb-5 px-1 text-[10px] font-semibold uppercase tracking-wide text-muted">Event tracker</p>
+        <p className="mb-5 px-1 text-[11.5px] font-semibold uppercase tracking-wide text-muted">Event tracker</p>
 
         <nav className="flex-1 space-y-0.5">
           {visibleItems.map(({ to, label, Icon }) => (
@@ -45,7 +45,7 @@ export default function Layout() {
               to={to}
               end={to === '/'}
               className={({ isActive }) =>
-                `flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors ${
+                `flex items-center gap-2.5 rounded-lg px-3 py-2 text-[14.5px] font-medium transition-colors ${
                   isActive ? 'bg-pale text-teal' : 'text-muted hover:bg-hover'
                 }`
               }
@@ -58,12 +58,12 @@ export default function Layout() {
 
         <div className="mt-4 flex items-center justify-between border-t border-line pt-3">
           <div className="flex min-w-0 items-center gap-2.5">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-pale text-[12px] font-semibold text-teal">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-pale text-[13.5px] font-semibold text-teal">
               {initials(displayName)}
             </span>
             <div className="min-w-0">
-              <p className="truncate text-[12.5px] font-medium text-ink">{displayName}</p>
-              <p className="truncate text-[11px] text-muted">{roleLabel}</p>
+              <p className="truncate text-[14px] font-medium text-ink">{displayName}</p>
+              <p className="truncate text-[12.5px] text-muted">{roleLabel}</p>
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1">
@@ -82,7 +82,7 @@ export default function Layout() {
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal text-on-teal">
             <IconSparkle size={15} />
           </span>
-          <span className="text-[15px] font-semibold text-ink">RLD BVP</span>
+          <span className="text-[16.5px] font-semibold text-ink">RLD BVP</span>
         </div>
         <button onClick={signOut} className="icon-btn" aria-label="Sign out">
           <IconSignOut size={15} />
@@ -100,7 +100,7 @@ export default function Layout() {
             to={to}
             end={to === '/'}
             className={({ isActive }) =>
-              `flex flex-1 flex-col items-center gap-0.5 py-2 text-[10.5px] font-medium ${
+              `flex flex-1 flex-col items-center gap-0.5 py-2 text-[12px] font-medium ${
                 isActive ? 'text-teal' : 'text-muted'
               }`
             }

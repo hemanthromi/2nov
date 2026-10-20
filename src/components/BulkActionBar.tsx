@@ -57,13 +57,13 @@ export default function BulkActionBar({ selectedIds, people, onCreatePerson, onD
   return (
     <>
       <div className="panel sticky top-0 z-30 mb-3 flex flex-wrap items-center gap-2 px-3.5 py-2.5">
-        <span className="text-[13px] font-medium text-ink">{selectedIds.length} selected</span>
+        <span className="text-[14.5px] font-medium text-ink">{selectedIds.length} selected</span>
 
         <button onClick={() => setAssignOpen(true)} disabled={busy} className="btn small">
           Assign people
         </button>
 
-        <select disabled={busy} onChange={(e) => e.target.value && setField('status', e.target.value)} defaultValue="" className="input w-auto py-1.5 text-[12px]">
+        <select disabled={busy} onChange={(e) => e.target.value && setField('status', e.target.value)} defaultValue="" className="input w-auto py-1.5 text-[13.5px]">
           <option value="" disabled>
             Set status&hellip;
           </option>
@@ -74,7 +74,7 @@ export default function BulkActionBar({ selectedIds, people, onCreatePerson, onD
           ))}
         </select>
 
-        <select disabled={busy} onChange={(e) => e.target.value && setField('priority', e.target.value)} defaultValue="" className="input w-auto py-1.5 text-[12px]">
+        <select disabled={busy} onChange={(e) => e.target.value && setField('priority', e.target.value)} defaultValue="" className="input w-auto py-1.5 text-[13.5px]">
           <option value="" disabled>
             Set priority&hellip;
           </option>
@@ -85,7 +85,7 @@ export default function BulkActionBar({ selectedIds, people, onCreatePerson, onD
           ))}
         </select>
 
-        <input type="date" disabled={busy} onChange={(e) => setDueDate(e.target.value)} className="input w-auto py-1.5 text-[12px]" title="Set due date" />
+        <input type="date" disabled={busy} onChange={(e) => setDueDate(e.target.value)} className="input w-auto py-1.5 text-[13.5px]" title="Set due date" />
 
         <button onClick={handleDelete} disabled={busy} className="btn danger-text small">
           Delete
@@ -100,7 +100,7 @@ export default function BulkActionBar({ selectedIds, people, onCreatePerson, onD
         <div className="dialog-scrim flex items-end justify-center sm:items-center">
           <div className="dialog w-full p-5 sm:m-4">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-[14.5px] font-semibold text-ink">Assign {selectedIds.length} task(s)</h2>
+              <h2 className="text-[16px] font-semibold text-ink">Assign {selectedIds.length} task(s)</h2>
               <button onClick={() => setAssignOpen(false)} className="icon-btn !border-0" aria-label="Close">
                 <IconX size={14} />
               </button>

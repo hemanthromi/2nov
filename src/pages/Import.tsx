@@ -17,7 +17,7 @@ export default function Import() {
   const [parseError, setParseError] = useState<string | null>(null);
 
   if (!isCoordinator) {
-    return <div className="p-7 text-[13px] text-muted">Only coordinators and admins can import or update tasks from a file.</div>;
+    return <div className="p-7 text-[14.5px] text-muted">Only coordinators and admins can import or update tasks from a file.</div>;
   }
 
   const existingBySourceNo = new Map(tasks.filter((t) => t.source_no != null).map((t) => [t.source_no as number, t.id]));
@@ -84,15 +84,15 @@ export default function Import() {
         <button onClick={() => fileRef.current?.click()} className="btn">
           Choose file
         </button>
-        {fileName && <p className="mt-2 text-[13px] text-muted">{fileName}</p>}
+        {fileName && <p className="mt-2 text-[14.5px] text-muted">{fileName}</p>}
       </div>
 
-      {parseError && <p className="text-[13px] text-out">{parseError}</p>}
+      {parseError && <p className="text-[14.5px] text-out">{parseError}</p>}
 
       {plan && (
         <div className="panel p-4">
           <h2 className="panel-title">Preview</h2>
-          <ul className="mt-2 space-y-1 text-[13px] text-ink">
+          <ul className="mt-2 space-y-1 text-[14.5px] text-ink">
             <li>{creates} new task(s)</li>
             <li>{updates} task(s) will be updated</li>
             <li>
@@ -102,7 +102,7 @@ export default function Import() {
           </ul>
 
           <div className="mt-4 max-h-64 overflow-y-auto rounded-lg border border-line">
-            <table className="w-full text-left text-[12px]">
+            <table className="w-full text-left text-[13.5px]">
               <thead className="bg-soft text-muted">
                 <tr>
                   <th className="px-2 py-1.5 font-medium">#</th>
@@ -124,7 +124,7 @@ export default function Import() {
                 ))}
               </tbody>
             </table>
-            {plan.items.length > 50 && <p className="p-2 text-center text-[12px] text-muted">Showing first 50 of {plan.items.length} rows</p>}
+            {plan.items.length > 50 && <p className="p-2 text-center text-[13.5px] text-muted">Showing first 50 of {plan.items.length} rows</p>}
           </div>
 
           <div className="mt-4 flex justify-end gap-2">
@@ -145,7 +145,7 @@ export default function Import() {
             {result.created} created, {result.updated} updated, {result.skipped} skipped.
           </p>
           {result.errors.length > 0 && (
-            <div className="mt-2 text-[12px] text-out">
+            <div className="mt-2 text-[13.5px] text-out">
               <p className="font-medium">{result.errors.length} error(s):</p>
               <ul className="list-disc pl-5">
                 {result.errors.slice(0, 10).map((e, i) => (

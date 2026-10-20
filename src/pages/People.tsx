@@ -35,8 +35,8 @@ export default function People() {
     refresh();
   }
 
-  if (loading) return <div className="p-7 text-[13px] text-muted">Loading&hellip;</div>;
-  if (error) return <div className="p-7 text-[13px] text-out">{error}</div>;
+  if (loading) return <div className="p-7 text-[14.5px] text-muted">Loading&hellip;</div>;
+  if (error) return <div className="p-7 text-[14.5px] text-out">{error}</div>;
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 px-3.5 py-5 md:px-7 md:py-7">
@@ -66,7 +66,7 @@ export default function People() {
           const taskCount = tasks.filter((t) => (t.assignees ?? []).some((a) => a.person_id === p.id)).length;
           return (
             <div key={p.id} className="row items-center">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-pale text-[12px] font-semibold text-teal">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-pale text-[13.5px] font-semibold text-teal">
                 {initials(p.name)}
               </span>
               <div className="min-w-0 flex-1">
@@ -84,7 +84,7 @@ export default function People() {
             </div>
           );
         })}
-        {people.length === 0 && <p className="p-7 text-center text-[13px] text-muted">No one added yet.</p>}
+        {people.length === 0 && <p className="p-7 text-center text-[14.5px] text-muted">No one added yet.</p>}
       </div>
     </div>
   );
