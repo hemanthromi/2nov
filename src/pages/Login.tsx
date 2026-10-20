@@ -1,9 +1,22 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 
+const STAFF_EMAIL_DOMAIN = 'sampark-staff.in';
+
+function resolveEmail(identifier: string): string {
+  const trimmed = identifier.trim();
+  const digitsOnly = trimmed.replace(/\D/g, '');
+  // Staff sign in with just their 10-digit phone number, same as the
+  // other Sampark apps (mapped to phone@sampark-staff.in under the hood).
+  if (/^\d{10}$/.test(digitsOnly)) {
+    return `${digitsOnly}@${STAFF_EMAIL_DOMAIN}`;
+  }
+  return trimmed;
+}
+
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [sent, setSent] = useState(false);
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -11,45 +24,54 @@ export default function Login() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: window.location.origin },
+    const { error } = await supabase.auth.signInWithPassword({
+      email: resolveEmail(identifier),
+      password,
     });
     setLoading(false);
-    if (error) setError(error.message);
-    else setSent(true);
+    if (error) setError(error.message === 'Invalid login credentials' ? 'Incorrect phone/email or password.' : error.message);
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h1 className="text-lg font-semibold text-slate-900">RLD BVP Event Tasks</h1>
-        <p className="mt-1 text-sm text-slate-500">Sign in with your email to manage the event checklist.</p>
+        <p className="mt-1 text-sm text-slate-500">
+          Sign in with the same phone number / email and password you use for other Sampark apps.
+        </p>
 
-        {sent ? (
-          <p className="mt-6 rounded-lg bg-brand-50 p-3 text-sm text-brand-800">
-            Check your inbox for a sign-in link.
-          </p>
-        ) : (
-          <form onSubmit={handleSubmit} className="mt-6 space-y-3">
-            <input
-              type="email"
-              required
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-            />
-            {error && <p className="text-sm text-red-600">{error}</p>}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-lg bg-brand-600 px-3 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
-            >
-              {loading ? 'Sending link...' : 'Send sign-in link'}
-            </button>
-          </form>
-        )}
+        <form onSubmit={handleSubmit} className="mt-6 space-y-3">
+          <input
+            type="text"
+            required
+            autoComplete="username"
+            placeholder="Phone number or email"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            className="input"
+          />
+          <input
+            type="password"
+            required
+            autoComplete="current-password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="input"
+          />
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-lg bg-brand-600 px-3 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+          >
+            {loading ? 'Signing in...' : 'Sign in'}
+          </button>
+        </form>
+
+        <p className="mt-4 text-xs text-slate-400">
+          Don't have an account yet? Ask a Sampark admin to add you.
+        </p>
       </div>
     </div>
   );
